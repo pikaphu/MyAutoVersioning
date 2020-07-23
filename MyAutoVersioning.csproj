@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.3-beta</Version>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.5-beta1</Version>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
   </PropertyGroup>

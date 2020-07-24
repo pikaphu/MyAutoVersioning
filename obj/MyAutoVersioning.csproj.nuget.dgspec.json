@@ -5,7 +5,7 @@
   },
   "projects": {
     "D:\\TestDotnetCore\\MyAutoVersioning\\MyAutoVersioning.csproj": {
-      "version": "1.0.5-beta1",
+      "version": "1.0.5-beta16",
       "restore": {
         "projectUniqueName": "D:\\TestDotnetCore\\MyAutoVersioning\\MyAutoVersioning.csproj",
         "projectName": "MyAutoVersioning",

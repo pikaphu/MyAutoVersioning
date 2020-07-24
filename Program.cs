@@ -1,8 +1,10 @@
-﻿#define TestingApp 
-//#undef TestingApp
+﻿#define TESTINGAPP
+#undef TESTINGAPP
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -11,16 +13,28 @@ namespace MyAutoVersioning
 {
     class Program
     {
+        static string projectName = "";
+        static string buildDir, projDir;
+
         static string newVersion, currentVersion;
         static string newFileMD5, currentFileMD5;
 
         static void Main(string[] args)
         {
+            foreach (var item in args)
+            {
+                Console.WriteLine("args: " + item);
+                projectName = item;
+            }
+
+            SetupProjectPath();
+
             Console.WriteLine("+[Versioning] Create/Update Version File...");
 
-            Console.WriteLine("+[Versioning] Manifest: " + GetAppFile());
+            Console.WriteLine("+[Versioning] Current Manifest Location: " + GetAppFile());
 
-            Console.WriteLine("+[Versioning] Manifest_chksum: " + GetAppFile_MD5());
+            Console.WriteLine();
+            Console.WriteLine("+[Versioning] Current Manifest_chksum: " + GetAppFile_MD5());
 
             // check version
             if (args.Length == 0)
@@ -29,91 +43,111 @@ namespace MyAutoVersioning
                 //                        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 //                        .InformationalVersion
                 //                        .ToString();
-
-                currentVersion =
+            }
+            currentVersion =
                 Assembly.GetEntryAssembly().FullName.Substring(Assembly.GetEntryAssembly().FullName.IndexOf("Version=") + 8, Assembly.GetEntryAssembly().FullName.IndexOf(", Culture") - 18 - 8);
 
-                Console.WriteLine("+[Versioning] Current Version:" + currentVersion);
-            }
+            Console.WriteLine("+[Versioning] Current Version: " + currentVersion);
+            Console.WriteLine();
 
             // create/update assemblyfile with versioning from custom start datetime
             CreateAssemblyVersionFile();
+        }
 
-            Console.WriteLine("+[Versioning] Manifest_chksum2:" + GetAppFile_MD5());
+        static void SetupProjectPath()
+        {
+#if TESTINGAPP || DEBUG
+            // AppDomain.CurrentDomain.BaseDirectory --> bin/Debug/...
+            // Environment.CurrentDirectory --> bin/Debug/....
+            Console.WriteLine("\ntest1:" + AppDomain.CurrentDomain.BaseDirectory);
+            Console.WriteLine("test2:" + Environment.CurrentDirectory);
+            Console.WriteLine("test3:" + Directory.GetCurrentDirectory());
+#endif
+
+#if TESTINGAPP
+            buildDir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            buildDir = Directory.GetCurrentDirectory();
+#endif
+
+            
+#if TESTINGAPP || DEBUG
+            Console.WriteLine("\nbuildDir " + buildDir);
+#endif
+
+            projDir = Directory.GetParent(buildDir).Parent.Parent.FullName;
+
+#if DEBUG
+            Console.WriteLine("\nprojDir " + projDir);
+#endif
+            Console.WriteLine();
         }
 
         static void CreateAssemblyVersionFile()
         {
-#if Debug
-            // AppDomain.CurrentDomain.BaseDirectory --> bin/Debug/...
-            // Environment.CurrentDirectory --> bin/Debug/....
-            Console.WriteLine("\ntest1:" + AppDomain.CurrentDomain.BaseDirectory);
-            Console.WriteLine("\ntest2:" + Environment.CurrentDirectory);
-#endif
-
-            string buildDir = Directory.GetCurrentDirectory();
-
-#if !TestingApp
-            buildDir = Directory.GetParent(buildDir).Parent.Parent.FullName;
-#endif
-
-#if Debug
-            Console.WriteLine("\ntest3:" + buildDir);
-#endif
-
-#if Debug
-            string projDir = Directory.GetParent(buildDir).Parent.Parent.FullName;
-#else
-            string projDir = buildDir;
-#endif
-
-
-#if Debug
-            Console.WriteLine(projDir);
-#endif
             string assemblyDir = Path.Combine(projDir, "properties");
             string assemblyFile = "myassemblyinfo.cs";
             string assemblyFilePath = Path.Combine(assemblyDir, assemblyFile);
 
+            string versionFile = "myversion.json";
+            string versionFilePath = Path.Combine(assemblyDir, versionFile);
+
             // create my assembly file directory
             Directory.CreateDirectory(assemblyDir);
-            
+
             // if assembly file already exists
             string content = "";
             if (File.Exists(assemblyFilePath))
             {
                 // read old file content
                 content = File.ReadAllText(assemblyFilePath);
-                Console.WriteLine("Current content of file:");
-                Console.WriteLine(content);
+                //Console.WriteLine("Current content of file:");
+                //Console.WriteLine(content);
 
-                currentFileMD5 = content.Substring(content.IndexOf("AssemblyInformationalVersion(", 16));
-                Console.WriteLine("CurrentFileMD5:" + currentFileMD5);
+                //currentFileMD5 = content.Substring(content.IndexOf("AssemblyInformationalVersion(") + 30, 32);
+                //Console.WriteLine("++[Versioning] CurrentFile_MD5: " + currentFileMD5);
+            }
+            if (File.Exists(versionFilePath))
+            {
+                currentFileMD5 = File.ReadAllText(versionFilePath); 
             }
 
             // create new 
             newVersion = GetNewVersion();
             newFileMD5 = GetAppFile_MD5();
 
+            Console.WriteLine("++[Versioning] NewFile_MD5: " + newFileMD5);
+
+            Console.WriteLine();
+            Console.WriteLine("+++[Versioning] OldVersion: " + currentVersion);
+            Console.WriteLine("+++[Versioning] NewVersion: " + newVersion);
+
             string assemblyFileContent =
-           @"using System.Reflection;" +
+           @"using System.Reflection;" + '\n' +
            Environment.NewLine +
-           "[assembly: AssemblyVersion(\"" + newVersion + "\")]" +
+           "[assembly: AssemblyVersion(\"" + newVersion + "\")]" + '\n' +
            "[assembly: AssemblyInformationalVersion(\"" + newFileMD5 + "\")]";
 
             string updateStatus = "";
-            if (!string.Equals(newVersion, currentVersion))
+            if (!string.Equals(newFileMD5, currentFileMD5))
             {
-                updateStatus = "(new)";
+                if (!string.Equals(newVersion, currentVersion))
+                {
+                    updateStatus = "(new)";
+                }
             }
+
 
             if (updateStatus != default)
             {
                 // create file version from content
                 File.WriteAllText(assemblyFilePath, assemblyFileContent);
+                File.WriteAllText(versionFilePath, newFileMD5);
             }
-            
-            Console.WriteLine($"+[Versioning] Updated Version:{newVersion} {updateStatus}");
+
+            Console.WriteLine();
+            Console.WriteLine("++++[Versioning] Updated Manifest_chksum2:" + GetAppFile_MD5());
+            Console.WriteLine($"++++[Versioning] Updated Version: {newVersion} {updateStatus}");
         }
 
         static string GetNewVersion()
@@ -130,7 +164,7 @@ namespace MyAutoVersioning
 
             return $"{Major}.{Minor}.{BuildNumber}.{Revision}";
         }
-     
+
         static string GetAppFile_MD5()
         {
             using (var stream = File.OpenRead(GetAppFile()))
@@ -140,7 +174,28 @@ namespace MyAutoVersioning
         }
         static string GetAppFile()
         {
-            return  Assembly.GetEntryAssembly().ManifestModule.FullyQualifiedName;
+
+            //return Assembly.GetEntryAssembly().ManifestModule.FullyQualifiedName;
+            //return Path.Combine(buildDir, Assembly.GetEntryAssembly().ManifestModule.Name);
+
+            if (!string.IsNullOrEmpty(projectName))
+            {
+                return Path.Combine(buildDir, projectName + ".dll");
+            }
+            return Path.Combine(buildDir, Assembly.GetEntryAssembly().GetName().Name + ".dll");
+
+
+            //StackFrame[] frames = new StackTrace().GetFrames();
+            //string initialAssembly = (from f in frames
+            //                          select f.GetMethod().ReflectedType.AssemblyQualifiedName
+            //                         ).Distinct().Last();
+
+            //foreach (var item in frames)
+            //{
+            //    Console.WriteLine(item.GetMethod().ReflectedType.AssemblyQualifiedName);
+            //}
+            
+            //return initialAssembly;
         }
 
         public static string CreateMD5(dynamic input)
@@ -152,11 +207,11 @@ namespace MyAutoVersioning
 
                 Type inputType = input.GetType();
 
-                if (inputType == typeof(string) )
+                if (inputType == typeof(string))
                 {
                     inputBytes = System.Text.Encoding.ASCII.GetBytes(input.ToString());
                 }
-                else if(inputType == typeof(byte) )
+                else if (inputType == typeof(byte))
                 {
                     inputBytes = input;
                 }

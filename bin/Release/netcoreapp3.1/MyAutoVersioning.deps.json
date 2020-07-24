@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "MyAutoVersioning/1.0.5-beta7": {
+        "runtime": {
+          "MyAutoVersioning.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MyAutoVersioning/1.0.5-beta7": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

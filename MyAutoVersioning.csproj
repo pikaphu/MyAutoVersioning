@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.5-beta1</Version>
+    <Version>1.0.5-beta16</Version>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

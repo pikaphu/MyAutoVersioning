@@ -1,0 +1,11 @@
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.exe
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.deps.json
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.runtimeconfig.json
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.runtimeconfig.dev.json
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.dll
+D:\TestDotnetCore\MyAutoVersioning\bin\Release\netcoreapp3.1\MyAutoVersioning.pdb
+D:\TestDotnetCore\MyAutoVersioning\obj\Release\netcoreapp3.1\MyAutoVersioning.csprojAssemblyReference.cache
+D:\TestDotnetCore\MyAutoVersioning\obj\Release\netcoreapp3.1\MyAutoVersioning.csproj.CoreCompileInputs.cache
+D:\TestDotnetCore\MyAutoVersioning\obj\Release\netcoreapp3.1\MyAutoVersioning.dll
+D:\TestDotnetCore\MyAutoVersioning\obj\Release\netcoreapp3.1\MyAutoVersioning.pdb
+D:\TestDotnetCore\MyAutoVersioning\obj\Release\netcoreapp3.1\MyAutoVersioning.genruntimeconfig.cache
